@@ -1,0 +1,96 @@
+---
+import { Image } from "astro:assets";
+import type { Painting } from "../data/paintings";
+import { type Lang } from "../i18n/ui";
+
+interface Props {
+  painting: Painting;
+  lang: Lang;
+  index?: number;
+  priority?: boolean;
+  variant?: "tile" | "feature";
+}
+
+const { painting, lang, priority = false, variant = "tile" } = Astro.props;
+const title = painting.title[lang];
+
+const aspect = variant === "feature" ? "aspect-[4/5]" : "aspect-square";
+---
+
+<figure
+  class={`group relative ${aspect} overflow-hidden rounded-2xl bg-[--color-ink-200] cursor-zoom-in`}
+  data-painting-id={painting.id}
+  data-painting-title={title}
+  data-painting-cat={painting.category}
+>
+  <Image
+    src={painting.src}
+    alt={title}
+    widths={[400, 600, 900, 1200]}
+    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+    loading={priority ? "eager" : "lazy"}
+    class="painting-img absolute inset-0 w-full h-full object-cover"
+  />
+
+  <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+  <figcaption class="painting-cap absolute inset-x-0 bottom-0 p-4 sm:p-5 text-white">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-1">#{painting.id}</div>
+    <div class="text-sm sm:text-base font-medium leading-snug text-balance">{title}</div>
+  </figcaption>
+
+  <div class="painting-zoom absolute top-3 right-3 w-7 h-7 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="text-[--color-ink-900]">
+      <polyline points="15 3 21 3 21 9"/>
+      <polyline points="9 21 3 21 3 15"/>
+      <line x1="21" y1="3" x2="14" y2="10"/>
+      <line x1="3" y1="21" x2="10" y2="14"/>
+    </svg>
+  </div>
+</figure>
+
+<style>
+  /* Explicit property transitions — never transition: all */
+  figure[data-painting-id] {
+    transition: box-shadow 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  figure[data-painting-id]:active {
+    transform: scale(0.97);
+  }
+
+  .painting-img {
+    transition: transform 800ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  /* Caption: starts below, fades in on hover */
+  .painting-cap {
+    transform: translateY(6px);
+    opacity: 0;
+    transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1), opacity 250ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  /* Zoom indicator: starts hidden */
+  .painting-zoom {
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 200ms cubic-bezier(0.23, 1, 0.32, 1), transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  /* Gate all hover-triggered movement behind pointer device check */
+  @media (hover: hover) and (pointer: fine) {
+    figure[data-painting-id]:hover {
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.2);
+    }
+    figure[data-painting-id]:hover .painting-img {
+      transform: scale(1.06);
+    }
+    figure[data-painting-id]:hover .painting-cap {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    figure[data-painting-id]:hover .painting-zoom {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+</style>

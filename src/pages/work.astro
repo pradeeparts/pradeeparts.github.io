@@ -1,0 +1,107 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PaintingCard from "../components/PaintingCard.astro";
+import Lightbox from "../components/Lightbox.astro";
+import { paintings, countByCategory, type Category } from "../data/paintings";
+import { t, type Lang } from "../i18n/ui";
+
+const lang: Lang = "en";
+const tr = t(lang);
+
+const filters: { id: Category | "all"; labelKey: string }[] = [
+  { id: "all",         labelKey: "work.filter.all" },
+  { id: "devotional",  labelKey: "category.devotional" },
+  { id: "festivals",   labelKey: "category.festivals" },
+  { id: "signs",       labelKey: "category.signs" },
+  { id: "commercial",  labelKey: "category.commercial" },
+];
+---
+
+<BaseLayout lang={lang} title={String(tr("work.title"))}>
+  <section class="pt-14 pb-12 sm:pt-20 sm:pb-16">
+    <div class="container-edge">
+      <div data-reveal class="max-w-3xl">
+        <div class="text-xs uppercase tracking-[0.22em] text-[--color-vermillion-600] mb-3">Portfolio</div>
+        <h1 class="text-5xl sm:text-7xl text-[--color-ink-900] text-balance">{tr("work.title")}</h1>
+        <p class="mt-5 text-lg text-[--color-ink-600] text-pretty max-w-xl">{tr("work.subtitle")}</p>
+      </div>
+
+      <div data-reveal class="mt-10 flex flex-wrap gap-2" role="tablist" aria-label="Filter by category">
+        {filters.map((f) => (
+          <button
+            type="button"
+            data-filter={f.id}
+            class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-[--color-ink-200] text-[--color-ink-700] hover:border-[--color-ink-900] hover:text-[--color-ink-900] active:scale-[0.96] data-[active=true]:bg-[--color-ink-900] data-[active=true]:text-white data-[active=true]:border-[--color-ink-900]" style="transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 120ms ease-out;"
+            data-active={f.id === "all" ? "true" : "false"}
+          >
+            {tr(f.labelKey as any)}
+            <span class="ml-1.5 text-[10px] tabular-nums opacity-60">
+              {f.id === "all" ? paintings.length : (countByCategory[f.id as Category] ?? 0)}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="pb-24">
+    <div class="container-edge">
+      <div id="painting-grid" class="grid gap-4 sm:gap-5 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {paintings.map((p, i) => (
+          <div data-card data-cat={p.category}>
+            <PaintingCard painting={p} lang={lang} priority={i < 8} />
+          </div>
+        ))}
+      </div>
+
+      <div id="empty-state" class="hidden text-center py-24 text-[--color-ink-500]">
+        {tr("work.empty")}
+      </div>
+    </div>
+  </section>
+
+  <Lightbox />
+
+  <script>
+    const init = () => {
+      const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+      const cards = document.querySelectorAll<HTMLElement>("[data-card]");
+      const empty = document.getElementById("empty-state");
+      const grid = document.getElementById("painting-grid");
+      if (!buttons.length || !cards.length) return;
+
+      const apply = (cat: string) => {
+        let visible = 0;
+        cards.forEach((c) => {
+          const match = cat === "all" || c.dataset.cat === cat;
+          c.style.display = match ? "" : "none";
+          if (match) visible++;
+        });
+        if (empty && grid) {
+          empty.classList.toggle("hidden", visible > 0);
+          grid.classList.toggle("hidden", visible === 0);
+        }
+      };
+
+      const setActive = (id: string) => {
+        buttons.forEach((b) => b.dataset.active = (b.dataset.filter === id) ? "true" : "false");
+      };
+
+      buttons.forEach((b) => b.addEventListener("click", () => {
+        const id = b.dataset.filter ?? "all";
+        setActive(id);
+        apply(id);
+        if (id !== "all") history.replaceState(null, "", `#${id}`);
+        else history.replaceState(null, "", window.location.pathname);
+      }));
+
+      const initial = window.location.hash?.slice(1);
+      if (initial && ["devotional","festivals","signs","commercial"].includes(initial)) {
+        setActive(initial); apply(initial);
+      }
+    };
+
+    init();
+    document.addEventListener("astro:page-load", init);
+  </script>
+</BaseLayout>

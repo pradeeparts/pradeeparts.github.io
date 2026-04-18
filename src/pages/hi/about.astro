@@ -1,0 +1,88 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { Image } from "astro:assets";
+import { t, localizedPath, type Lang } from "../../i18n/ui";
+import { paintings } from "../../data/paintings";
+import logo from "../../assets/logo.png";
+
+const lang: Lang = "hi";
+const tr = t(lang);
+const portrait = paintings.find((p) => p.id === "17") ?? paintings[0];
+---
+
+<BaseLayout lang={lang} title={String(tr("about.title"))}>
+  <section class="pt-14 pb-20 sm:pt-20 sm:pb-28">
+    <div class="container-edge grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+      <div class="lg:col-span-7">
+        <div data-reveal class="text-xs uppercase tracking-[0.22em] text-[--color-vermillion-600] mb-4">परिचय</div>
+        <h1 data-reveal class="text-5xl sm:text-7xl text-[--color-ink-900] text-balance leading-[1.05]">
+          {tr("about.title")}
+        </h1>
+        <p data-reveal class="mt-8 text-2xl sm:text-3xl text-[--color-ink-700] italic leading-snug text-balance">
+          {tr("about.lead")}
+        </p>
+        <div data-reveal class="mt-8 space-y-5 text-[--color-ink-600] text-lg leading-relaxed text-pretty max-w-2xl">
+          <p>{tr("about.body1")}</p>
+          <p>{tr("about.body2")}</p>
+        </div>
+
+        <div data-reveal class="mt-12">
+          <div class="text-xs uppercase tracking-[0.22em] text-[--color-vermillion-600] mb-5">{tr("about.skills.title")}</div>
+          <ul class="grid sm:grid-cols-2 gap-3">
+            <li class="flex gap-3 p-4 rounded-xl bg-[--color-ink-100]/60 hover:bg-[--color-ink-100] transition-colors">
+              <span class="text-[--color-vermillion-500] text-xl leading-none mt-0.5">✦</span>
+              <span class="text-sm text-[--color-ink-800] leading-relaxed">{tr("about.skill.murals")}</span>
+            </li>
+            <li class="flex gap-3 p-4 rounded-xl bg-[--color-ink-100]/60 hover:bg-[--color-ink-100] transition-colors">
+              <span class="text-[--color-saffron-500] text-xl leading-none mt-0.5">✦</span>
+              <span class="text-sm text-[--color-ink-800] leading-relaxed">{tr("about.skill.signs")}</span>
+            </li>
+            <li class="flex gap-3 p-4 rounded-xl bg-[--color-ink-100]/60 hover:bg-[--color-ink-100] transition-colors">
+              <span class="text-[--color-jade-500] text-xl leading-none mt-0.5">✦</span>
+              <span class="text-sm text-[--color-ink-800] leading-relaxed">{tr("about.skill.statues")}</span>
+            </li>
+            <li class="flex gap-3 p-4 rounded-xl bg-[--color-ink-100]/60 hover:bg-[--color-ink-100] transition-colors">
+              <span class="text-[--color-ink-700] text-xl leading-none mt-0.5">✦</span>
+              <span class="text-sm text-[--color-ink-800] leading-relaxed">{tr("about.skill.commercial")}</span>
+            </li>
+          </ul>
+        </div>
+
+        <div data-reveal class="mt-12">
+          <a href={localizedPath("/contact", lang)} class="btn-primary">
+            {tr("about.cta")}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <aside class="lg:col-span-5 lg:sticky lg:top-28">
+        <div data-reveal class="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-[--color-ink-700]/20 ring-1 ring-[--color-ink-200]">
+          <Image
+            src={portrait.src}
+            alt="प्रदीप कार्य करते हुए"
+            widths={[500, 800, 1100]}
+            sizes="(min-width: 1024px) 38vw, 90vw"
+            class="absolute inset-0 w-full h-full object-cover"
+          />
+          <div class="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/85 to-transparent text-white">
+            <div class="text-xs uppercase tracking-[0.2em] text-white/70">कार्य के दौरान</div>
+            <div class="text-lg italic mt-0.5">— हाथ, ब्रश, दीवार।</div>
+          </div>
+        </div>
+
+        <div data-reveal class="mt-6 p-6 rounded-2xl bg-[--color-ink-900] text-white">
+          <div class="flex items-center gap-3">
+            <Image src={logo} alt="Pradeep Arts Studio" width={40} height={40} class="rounded-full ring-1 ring-white/20" />
+            <div>
+              <div class="text-sm font-medium">Pradeep Arts Studio</div>
+              <div class="text-[11px] uppercase tracking-[0.18em] text-white/60">मुंबई · हाथ से बनी कला</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

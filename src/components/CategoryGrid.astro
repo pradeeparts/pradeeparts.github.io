@@ -1,0 +1,75 @@
+---
+import { t, localizedPath, type Lang } from "../i18n/ui";
+import { countByCategory, type Category } from "../data/paintings";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tr = t(lang);
+
+const cats: { id: Category; titleKey: string; descKey: string; accent: string }[] = [
+  { id: "devotional",  titleKey: "category.devotional",  descKey: "category.devotional.desc",  accent: "from-[--color-vermillion-500]/85 to-[--color-vermillion-600]" },
+  { id: "festivals",   titleKey: "category.festivals",   descKey: "category.festivals.desc",   accent: "from-[--color-saffron-400] to-[--color-saffron-600]" },
+  { id: "signs",       titleKey: "category.signs",       descKey: "category.signs.desc",       accent: "from-[--color-jade-500] to-[--color-jade-600]" },
+  { id: "commercial",  titleKey: "category.commercial",  descKey: "category.commercial.desc",  accent: "from-[--color-ink-700] to-[--color-ink-900]" },
+];
+---
+
+<section class="py-20 sm:py-28">
+  <div class="container-edge">
+    <div data-reveal class="max-w-3xl mb-12">
+      <div class="text-xs uppercase tracking-[0.22em] text-[--color-vermillion-600] mb-3">
+        {lang === "hi" ? "श्रेणियाँ" : "Categories"}
+      </div>
+      <h2 class="text-4xl sm:text-5xl text-[--color-ink-900] mb-4">{tr("categories.title")}</h2>
+      <p class="text-lg text-[--color-ink-600] text-pretty">{tr("categories.subtitle")}</p>
+    </div>
+
+    <div data-reveal-stagger class="grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4 [&>a]:cursor-pointer">
+      {cats.map((c) => (
+        <a
+          href={`${localizedPath("/work", lang)}#${c.id}`}
+          class={`group relative overflow-hidden rounded-3xl p-7 sm:p-8 min-h-[260px] flex flex-col justify-between bg-gradient-to-br ${c.accent} text-white`}
+          style="transition: transform 300ms cubic-bezier(0.23,1,0.32,1), box-shadow 300ms cubic-bezier(0.23,1,0.32,1);"
+        >
+          <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white/10 blur-2xl group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+
+          <div class="relative">
+            <div class="text-5xl font-[family-name:var(--font-display)] font-medium tabular-nums">
+              {String(countByCategory[c.id] ?? 0).padStart(2, "0")}
+            </div>
+            <div class="mt-2 text-xs uppercase tracking-[0.18em] text-white/70">{tr("work.count")}</div>
+          </div>
+
+          <div class="relative">
+            <h3 class="text-xl sm:text-2xl font-medium leading-tight mb-2 text-balance">{tr(c.titleKey as any)}</h3>
+            <p class="text-sm text-white/80 leading-relaxed text-pretty">{tr(c.descKey as any)}</p>
+            <div class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium opacity-90 group-hover:gap-3 transition-[gap] duration-200">
+              {lang === "hi" ? "देखें" : "View"}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (hover: hover) and (pointer: fine) {
+    a[href*="#devotional"]:hover,
+    a[href*="#festivals"]:hover,
+    a[href*="#signs"]:hover,
+    a[href*="#commercial"]:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.28);
+    }
+  }
+  a[href*="#devotional"]:active,
+  a[href*="#festivals"]:active,
+  a[href*="#signs"]:active,
+  a[href*="#commercial"]:active {
+    transform: scale(0.98);
+  }
+</style>

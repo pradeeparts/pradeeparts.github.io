@@ -1,0 +1,30 @@
+---
+import { type Lang } from "../i18n/ui";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const items = lang === "hi"
+  ? ["दीवार चित्र", "धार्मिक कला", "साइनबोर्ड", "मूर्ति चित्रकला", "त्यौहार सजावट", "ब्रांडिंग", "कस्टम कार्य", "हाथ से बना"]
+  : ["Wall murals", "Devotional art", "Storefront signs", "Idol painting", "Festival décor", "Brand walls", "Custom work", "Hand-painted"];
+
+const doubled = [...items, ...items];
+---
+
+<div class="py-10 border-y border-[--color-ink-200] bg-[--color-ink-100]/50 marquee-mask overflow-hidden">
+  <div class="flex gap-12 animate-[marquee_38s_linear_infinite] whitespace-nowrap will-change-transform">
+    {doubled.map((it) => (
+      <span class="flex items-center gap-12 text-2xl sm:text-3xl font-[family-name:var(--font-display)] italic text-[--color-ink-700]">
+        {it}
+        <svg width="7" height="7" viewBox="0 0 7 7" fill="currentColor" class="text-[--color-vermillion-500] shrink-0" aria-hidden="true"><path d="M3.5 0L7 3.5L3.5 7L0 3.5Z"/></svg>
+      </span>
+    ))}
+  </div>
+</div>
+
+<style>
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+</style>

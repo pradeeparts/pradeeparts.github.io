@@ -1,0 +1,66 @@
+---
+import { SITE } from "../config";
+import { t, localizedPath, type Lang } from "../i18n/ui";
+import { Image } from "astro:assets";
+import logo from "../assets/logo.png";
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tr = t(lang);
+
+const navItems = [
+  { key: "nav.work", path: "/work" },
+  { key: "nav.about", path: "/about" },
+  { key: "nav.contact", path: "/contact" },
+] as const;
+
+const otherLang: Lang = lang === "en" ? "hi" : "en";
+const currentPath = Astro.url.pathname.replace(/^\/portfolio/, "").replace(/^\/hi/, "") || "/";
+const langSwitchHref = localizedPath(currentPath, otherLang);
+---
+
+<header class="sticky top-0 z-40 backdrop-blur-md bg-[rgba(250,250,247,0.78)] border-b border-[--color-ink-200]/60">
+  <div class="container-edge flex items-center justify-between h-16 md:h-20">
+    <a
+      href={localizedPath("/", lang)}
+      class="flex items-center gap-3 group"
+      aria-label={SITE.name}
+    >
+      <Image
+        src={logo}
+        alt={SITE.name}
+        width={44}
+        height={44}
+        loading="eager"
+        class="rounded-full ring-1 ring-[--color-ink-200] group-hover:ring-[--color-saffron-400] group-hover:rotate-[8deg]" style="transition: transform 300ms cubic-bezier(0.23,1,0.32,1), box-shadow 200ms ease;"
+      />
+      <div class="hidden sm:block">
+        <div class="font-[family-name:var(--font-display)] text-[15px] leading-tight tracking-tight text-[--color-ink-900]">
+          Pradeep <span class="italic text-[--color-vermillion-600]">Arts</span> Studio
+        </div>
+        <div class="text-[10.5px] uppercase tracking-[0.18em] text-[--color-ink-500]">
+          {lang === "hi" ? "हाथ से बनी कला" : "Hand-painted craft"}
+        </div>
+      </div>
+    </a>
+
+    <nav class="flex items-center gap-1 sm:gap-2">
+      {navItems.map((item) => (
+        <a
+          href={localizedPath(item.path, lang)}
+          class="px-3 py-2 text-sm font-medium text-[--color-ink-700] hover:text-[--color-vermillion-600] transition-colors relative group"
+        >
+          {tr(item.key)}
+          <span class="absolute left-3 right-3 -bottom-0.5 h-px bg-[--color-vermillion-500] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-200"></span>
+        </a>
+      ))}
+      <a
+        href={langSwitchHref}
+        class="ml-2 px-3 py-1.5 text-xs font-semibold rounded-full border border-[--color-ink-300] text-[--color-ink-700] hover:bg-[--color-ink-900] hover:text-white hover:border-[--color-ink-900] active:scale-[0.95]" style="transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 120ms ease-out;"
+        aria-label={`Switch to ${otherLang === "hi" ? "Hindi" : "English"}`}
+      >
+        {tr("nav.lang")}
+      </a>
+    </nav>
+  </div>
+</header>

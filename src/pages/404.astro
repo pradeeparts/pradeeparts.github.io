@@ -1,0 +1,16 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { localizedPath } from "../i18n/ui";
+---
+
+<BaseLayout title="Not found">
+  <section class="min-h-[60vh] grid place-items-center px-6">
+    <div class="text-center">
+      <div class="text-[clamp(6rem,18vw,12rem)] font-[family-name:var(--font-display)] italic text-[--color-vermillion-600] leading-none">
+        404
+      </div>
+      <p class="mt-2 text-xl text-[--color-ink-700]">This wall is still blank.</p>
+      <a href={localizedPath("/", "en")} class="btn-primary mt-8">Back to home</a>
+    </div>
+  </section>
+</BaseLayout>

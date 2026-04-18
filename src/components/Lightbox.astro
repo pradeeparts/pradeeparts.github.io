@@ -1,0 +1,191 @@
+---
+---
+
+<div
+  id="lightbox"
+  class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/92 backdrop-blur-md"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Image viewer"
+>
+  <button
+    id="lightbox-close"
+    class="lightbox-ctrl absolute top-4 right-4 w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center"
+    aria-label="Close"
+  >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+
+  <button
+    id="lightbox-prev"
+    class="lightbox-ctrl absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center"
+    aria-label="Previous"
+  >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+
+  <button
+    id="lightbox-next"
+    class="lightbox-ctrl absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 text-white flex items-center justify-center"
+    aria-label="Next"
+  >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  </button>
+
+  <div id="lightbox-content" class="relative max-w-[92vw] max-h-[88vh] flex flex-col items-center gap-4">
+    <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl" />
+    <div id="lightbox-caption" class="text-white/90 text-sm sm:text-base text-center text-balance max-w-2xl px-4"></div>
+  </div>
+</div>
+
+<style>
+  /* Explicit transitions on control buttons — never transition: all */
+  .lightbox-ctrl {
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 150ms ease;
+  }
+  .lightbox-ctrl:active {
+    transform: scale(0.92);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .lightbox-ctrl:hover {
+      background-color: rgb(255 255 255 / 0.2);
+    }
+    #lightbox-close:hover {
+      transform: rotate(90deg);
+    }
+    #lightbox-prev:hover {
+      transform: translateX(-3px);
+    }
+    #lightbox-next:hover {
+      transform: translateX(3px);
+    }
+  }
+</style>
+
+<script>
+  const EASE_OUT = 'cubic-bezier(0.23, 1, 0.32, 1)';
+  const EASE_IN  = 'cubic-bezier(0.77, 0, 0.175, 1)';
+
+  const init = () => {
+    const lb      = document.getElementById("lightbox");
+    const content = document.getElementById("lightbox-content");
+    const img     = document.getElementById("lightbox-img") as HTMLImageElement | null;
+    const cap     = document.getElementById("lightbox-caption");
+    const closeBtn = document.getElementById("lightbox-close");
+    const prevBtn  = document.getElementById("lightbox-prev");
+    const nextBtn  = document.getElementById("lightbox-next");
+    if (!lb || !content || !img || !cap || !closeBtn || !prevBtn || !nextBtn) return;
+
+    let figures: HTMLElement[] = [];
+    let idx = 0;
+
+    const collect = () => {
+      figures = Array.from(document.querySelectorAll<HTMLElement>("figure[data-painting-id]"))
+        .filter((el) => !el.closest("[data-lightbox-skip]"));
+    };
+
+    const show = (i: number, instant = false) => {
+      if (!figures.length) return;
+      idx = (i + figures.length) % figures.length;
+      const fig = figures[idx];
+      const src   = fig.querySelector("img")?.currentSrc || fig.querySelector("img")?.src || "";
+      const title = fig.dataset.paintingTitle ?? "";
+
+      img.getAnimations().forEach((a) => a.cancel());
+
+      const load = () => {
+        img.src = src;
+        img.alt = title;
+        cap.textContent = title;
+        img.animate(
+          [{ opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)" }],
+          { duration: 220, easing: EASE_OUT, fill: "forwards" }
+        );
+      };
+
+      if (instant || !img.src) {
+        load();
+        return;
+      }
+
+      // Blur-crossfade: fade out → swap src → fade in
+      const fadeOut = img.animate(
+        [{ opacity: 1, filter: "blur(0px)" }, { opacity: 0, filter: "blur(6px)" }],
+        { duration: 140, easing: "ease-out", fill: "forwards" }
+      );
+      fadeOut.onfinish = load;
+    };
+
+    const open = (start: number) => {
+      collect();
+      lb.classList.remove("hidden");
+      lb.classList.add("flex");
+      document.body.style.overflow = "hidden";
+      // Backdrop fade-in
+      lb.getAnimations().forEach((a) => a.cancel());
+      lb.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 200, easing: EASE_OUT, fill: "forwards" }
+      );
+      // Content scale-up from 0.95 — nothing in real world appears from nothing
+      content.animate(
+        [{ transform: "scale(0.95)", opacity: 0 }, { transform: "scale(1)", opacity: 1 }],
+        { duration: 240, easing: EASE_OUT, fill: "forwards" }
+      );
+      show(start, true);
+    };
+
+    const close = () => {
+      lb.getAnimations().forEach((a) => a.cancel());
+      content.getAnimations().forEach((a) => a.cancel());
+      // Fast exit — asymmetric: slow enter, fast exit
+      const anim = lb.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration: 160, easing: EASE_IN, fill: "forwards" }
+      );
+      content.animate(
+        [{ transform: "scale(1)", opacity: 1 }, { transform: "scale(0.96)", opacity: 0 }],
+        { duration: 160, easing: EASE_IN, fill: "forwards" }
+      );
+      anim.onfinish = () => {
+        lb.classList.add("hidden");
+        lb.classList.remove("flex");
+        document.body.style.overflow = "";
+        lb.getAnimations().forEach((a) => a.cancel());
+        content.getAnimations().forEach((a) => a.cancel());
+      };
+    };
+
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const fig = target.closest<HTMLElement>("figure[data-painting-id]");
+      if (fig && !fig.closest("[data-lightbox-skip]")) {
+        e.preventDefault();
+        collect();
+        const i = figures.indexOf(fig);
+        if (i >= 0) open(i);
+      }
+    });
+
+    closeBtn.addEventListener("click", close);
+    prevBtn.addEventListener("click", () => show(idx - 1));
+    nextBtn.addEventListener("click", () => show(idx + 1));
+    lb.addEventListener("click", (e) => { if (e.target === lb) close(); });
+
+    document.addEventListener("keydown", (e) => {
+      if (lb.classList.contains("hidden")) return;
+      if (e.key === "Escape")      close();
+      if (e.key === "ArrowRight")  show(idx + 1);
+      if (e.key === "ArrowLeft")   show(idx - 1);
+    });
+  };
+
+  init();
+  document.addEventListener("astro:page-load", init);
+</script>
