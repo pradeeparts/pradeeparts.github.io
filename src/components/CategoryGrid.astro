@@ -7,10 +7,10 @@ const { lang } = Astro.props;
 const tr = t(lang);
 
 const cats: { id: Category; titleKey: string; descKey: string; accent: string }[] = [
-  { id: "devotional",  titleKey: "category.devotional",  descKey: "category.devotional.desc",  accent: "from-[--color-vermillion-500]/85 to-[--color-vermillion-600]" },
-  { id: "festivals",   titleKey: "category.festivals",   descKey: "category.festivals.desc",   accent: "from-[--color-saffron-400] to-[--color-saffron-600]" },
-  { id: "signs",       titleKey: "category.signs",       descKey: "category.signs.desc",       accent: "from-[--color-jade-500] to-[--color-jade-600]" },
-  { id: "commercial",  titleKey: "category.commercial",  descKey: "category.commercial.desc",  accent: "from-[--color-ink-700] to-[--color-ink-900]" },
+  { id: "devotional",  titleKey: "category.devotional",  descKey: "category.devotional.desc",  accent: "from-vermillion-500/85 to-vermillion-600" },
+  { id: "festivals",   titleKey: "category.festivals",   descKey: "category.festivals.desc",   accent: "from-saffron-400 to-saffron-600" },
+  { id: "signs",       titleKey: "category.signs",       descKey: "category.signs.desc",       accent: "from-jade-500 to-jade-600" },
+  { id: "commercial",  titleKey: "category.commercial",  descKey: "category.commercial.desc",  accent: "from-ink-700 to-ink-900" },
 ];
 ---
 
